@@ -38,7 +38,7 @@ def draw_board():
 
 def find_place():
     column = math.floor(pygame.mouse.get_pos()[0] / 100)
-    row = math.floor(pygame.mouse.get_pos()[1] / 100)
+    row = 5
     while board[column][row] != 0 and row >= 0:
         row = row - 1
     return column, row
