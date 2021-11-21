@@ -1,32 +1,25 @@
-import sys
-
-NUMBER_OF_MAKES = 4
-ROW_COUNT = 6
-COLUMN_COUNT = 7
-PLAYER_ONE_PIECE = 1
-PLAYER_TWO_PIECE = 2
-points = {  # Number of pieces of same player in a sequence --> its score
-    0: 0,
-    1: 1,
-    2: 2,
-    3: 5,
-    4: 500
-}
-
-board = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
-
-
 def print_board(board):
+    print("1 2 3 4 5 6 7")
+    print("_____________")
     for row in board:
         for item in row:
             print(f"{item} ", end="")
         print("")
+    print("~~~~~~~~~~~~~")
 
 
 def is_full(board):
     for row in board:
         for item in row:
             if item == 0:
+                return False
+    return True
+
+
+def is_empty(board):
+    for row in board:
+        for item in row:
+            if not (item == 0):
                 return False
     return True
 
@@ -41,11 +34,11 @@ def get_copy(board):
     return new_board
 
 
-def add_to_board(board, player_piece, column):
+def add_to_board(board, player_piece, row_count, column):
     try:
         if board[0][column] == 0:
             r = 0
-            for i in range(0, ROW_COUNT):
+            for i in range(0, row_count):
                 r = i
                 if not (board[i][column] == 0):
                     r -= 1
@@ -59,11 +52,11 @@ def add_to_board(board, player_piece, column):
         return False
 
 
-def get_children(board, player_piece, column_count):
+def get_children(board, player_piece, row_count, column_count):
     children = []
     for i in range(column_count):
         temp_board = get_copy(board)
-        if add_to_board(temp_board, player_piece, i):
+        if add_to_board(temp_board, player_piece, row_count, i):
             children.append(temp_board)
     return children
 
@@ -117,73 +110,89 @@ def get_score(board, player_piece, row_count, column_count, number_of_makes, poi
     return score
 
 
-def minmax(board, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
-           point_dictionary):
-    player_piece = 1 if the_maximising_player else 2
+def minimize(board, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
+             point_dictionary):
+    player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return get_score(board, player_piece, row_count, column_count, number_of_makes,
-                         point_dictionary)
+        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
+                                point_dictionary)
+
+    (min_child, min_utility) = (None, float('inf'))
+
+    for child in get_children(board, player_piece, row_count, column_count):
+        (new_child, utility) = maximize(child, depth - 1, alpha, beta, True, row_count, column_count, number_of_makes,
+                                        point_dictionary)
+
+        if utility < min_utility:
+            (min_child, min_utility) = (child, utility)
+
+        if min_utility <= alpha:
+            break
+        if min_utility < beta:
+            beta = min_utility
+
+    return min_child, min_utility
+
+
+def maximize(board, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
+             point_dictionary):
+    player_piece = 2 if the_maximising_player else 1
+    if (depth == 0) or is_full(board):
+        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
+                                point_dictionary)
+
+    (max_child, max_utility) = (None, float('-inf'))
+
+    for child in get_children(board, player_piece, row_count, column_count):
+        new_child, utility = minimize(child, depth - 1, alpha, beta, False, row_count, column_count, number_of_makes,
+                                      point_dictionary)
+
+        if utility > max_utility:
+            (max_child, max_utility) = (child, utility)
+
+        if max_utility >= beta:
+            break
+        if max_utility > alpha:
+            alpha = max_utility
+
+    return max_child, max_utility
+
+
+def decide(board, depth, row_count, column_count, number_of_makes,
+           point_dictionary):
+    (child, max_utility) = maximize(board, depth, float('-inf'), float('inf'), True, row_count, column_count,
+                                    number_of_makes, point_dictionary)
+    return child, max_utility
+
+
+def min_max(board, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
+            point_dictionary):
+    player_piece = 2 if the_maximising_player else 1
+    if (depth == 0) or is_full(board):
+        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
+                                point_dictionary)
 
     if the_maximising_player:
-        max_score = float('inf')
-        for child in get_children(board, player_piece, column_count):
-            score = minmax(child, depth - 1, alpha, beta, False, row_count, column_count, number_of_makes,
-                           point_dictionary)
-            max_score = max((score, max_score))
+        max_child, max_score = None, float('-inf')
+
+        for child in get_children(board, player_piece, row_count, column_count):
+            new_child, score = min_max(child, depth - 1, alpha, beta, False, row_count, column_count, number_of_makes,
+                                       point_dictionary)
+            if score > max_score:
+                max_child, max_score = child, score
             alpha = max((alpha, score))
             if beta <= alpha:
                 break
-        return max_score
+        return max_child, float(max_score)
 
     else:
-        min_score = float('-inf')
-        for child in get_children(board, player_piece, column_count):
-            score = minmax(child, depth - 1, alpha, beta, True, row_count, column_count, number_of_makes,
-                           point_dictionary)
-            min_score = min((score, min_score))
+        min_child, min_score = None, float('inf')
+        for child in get_children(board, player_piece, row_count, column_count):
+            new_child, score = min_max(child, depth - 1, alpha, beta, True, row_count, column_count, number_of_makes,
+                                       point_dictionary)
+            if score < min_score:
+                min_child, min_score = child, score
             beta = min((beta, score))
             if beta <= alpha:
                 break
-        return min_score
-
-# for row in range(ROW_COUNT - 2):
-#     for col in range(COLUMN_COUNT -2):
-#         print(f"{board[row][col]} ", end="")
-#     print("")
-# board[5][5] = 1
-# board[5][6] = 1
-# print(get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points))
-
-
-quit = False
-player_one_move = True
-while not quit:
-    print_board(board)
-    if player_one_move:
-        try:
-            column_1 = int(input("Player one> "))
-            if add_to_board(board, PLAYER_ONE_PIECE, column_1):
-                if get_score(board, PLAYER_ONE_PIECE, points):
-                    print("congrats!! one")
-                    quit = True
-            else:
-                print("Wrong move!!")
-                continue
-            player_one_move = False
-        except ValueError:
-            print("Wrong Input!!")
-            continue
-    else:
-        try:
-            column_2 = int(input("Player two> "))
-            if add_to_board(board, PLAYER_TWO_PIECE, column_2):
-                if get_score(board, PLAYER_TWO_PIECE, points):
-                    print("congrats!! two")
-                    quit = True
-            else:
-                print("Wrong move!!")
-                continue
-            player_one_move = True
-        except ValueError:
-            print("Wrong Input!!")
-            continue
+        return min_child, float(min_score)
