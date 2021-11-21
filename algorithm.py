@@ -1,3 +1,5 @@
+import sys
+
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -21,6 +23,24 @@ def print_board(board):
         print("")
 
 
+def is_full(board):
+    for row in board:
+        for item in row:
+            if item == 0:
+                return False
+    return True
+
+
+def get_copy(board):
+    new_board = []
+    for row in board:
+        new_row = []
+        for item in row:
+            new_row.append(item)
+        new_board.append(new_row)
+    return new_board
+
+
 def add_to_board(board, player_piece, column):
     try:
         if board[0][column] == 0:
@@ -37,6 +57,15 @@ def add_to_board(board, player_piece, column):
     except IndexError:
         print("Wrong Index!!!")
         return False
+
+
+def get_children(board, player_piece, column_count):
+    children = []
+    for i in range(column_count):
+        temp_board = get_copy(board)
+        if add_to_board(temp_board, player_piece, i):
+            children.append(temp_board)
+    return children
 
 
 def get_score(board, player_piece, row_count, column_count, number_of_makes, point_dictionary):
@@ -88,6 +117,35 @@ def get_score(board, player_piece, row_count, column_count, number_of_makes, poi
     return score
 
 
+def minmax(board, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
+           point_dictionary):
+    player_piece = 1 if the_maximising_player else 2
+    if (depth == 0) or is_full(board):
+        return get_score(board, player_piece, row_count, column_count, number_of_makes,
+                         point_dictionary)
+
+    if the_maximising_player:
+        max_score = float('inf')
+        for child in get_children(board, player_piece, column_count):
+            score = minmax(child, depth - 1, alpha, beta, False, row_count, column_count, number_of_makes,
+                           point_dictionary)
+            max_score = max((score, max_score))
+            alpha = max((alpha, score))
+            if beta <= alpha:
+                break
+        return max_score
+
+    else:
+        min_score = float('-inf')
+        for child in get_children(board, player_piece, column_count):
+            score = minmax(child, depth - 1, alpha, beta, True, row_count, column_count, number_of_makes,
+                           point_dictionary)
+            min_score = min((score, min_score))
+            beta = min((beta, score))
+            if beta <= alpha:
+                break
+        return min_score
+
 # for row in range(ROW_COUNT - 2):
 #     for col in range(COLUMN_COUNT -2):
 #         print(f"{board[row][col]} ", end="")
@@ -95,6 +153,7 @@ def get_score(board, player_piece, row_count, column_count, number_of_makes, poi
 # board[5][5] = 1
 # board[5][6] = 1
 # print(get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points))
+
 
 quit = False
 player_one_move = True
