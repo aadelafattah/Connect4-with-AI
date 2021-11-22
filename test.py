@@ -1,4 +1,4 @@
-from algorithm import print_board, add_to_board, get_score, min_max
+from algorithm import print_board, add_to_board, get_score, decide
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -6,10 +6,10 @@ COLUMN_COUNT = 7
 PLAYER_ONE_PIECE = 1
 PLAYER_TWO_PIECE = 2
 SCORE_FOR_WIN = 1000
-DEPTH = 5
+DEPTH = 6
 points = {  # Number of pieces of same player in a sequence --> its score
     0: 0,
-    1: 1,
+    1: 0,
     2: 2,
     3: 5,
     4: 1000
@@ -72,10 +72,15 @@ while not quit_loop:
         try:
             choice = int(input("Enter column number: ")) - 1
             if add_to_board(board, 1, ROW_COUNT, choice):
-                score = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
+                score = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_score(board, 2,
+                                                                                                          ROW_COUNT,
+                                                                                                          COLUMN_COUNT,
+                                                                                                          NUMBER_OF_MAKES,
+                                                                                                          points)
                 recorded_score = score
-                if score >= SCORE_FOR_WIN:
-                    print(f"Congrats Player, Your Score = {score}")
+                print(f"Player score: {recorded_score}")
+                if recorded_score >= SCORE_FOR_WIN:
+                    print(f"Congrats Player, Your Score = {recorded_score}")
                     quit_loop = True
         except ValueError:
             print("Wrong move!!")
@@ -84,9 +89,10 @@ while not quit_loop:
     # Player Two (algorithm) Move
     else:
         player_one_move = True
-        # (board, algorithm_score) = decide(board, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
-        (board, algorithm_score) = min_max(board, DEPTH, float('-inf'), float('inf'), True, ROW_COUNT, COLUMN_COUNT,
-                                           NUMBER_OF_MAKES, points)
+        (board, algorithm_score) = decide(board, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
+        # (board, algorithm_score) = min_max(board, DEPTH, float('-inf'), float('inf'), True, ROW_COUNT, COLUMN_COUNT,
+        #                                    NUMBER_OF_MAKES, points)
+        print(f"Algorithm score: {algorithm_score}")
         if algorithm_score < SCORE_FOR_WIN:
             continue
         print(f"You lost, Your Score = {recorded_score}")
