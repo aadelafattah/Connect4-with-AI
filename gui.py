@@ -1,5 +1,5 @@
 import pygame
-from algorithm import decide, get_score, add_to_board
+from algorithm import decide, get_score, add_to_board, print_board
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -80,12 +80,12 @@ def player_move(column):
         return False
 
 
-# Algorithm Move
-def algorithm_move():
+# Algorithm Move 1
+def algorithm_move(pruning):
     global board
-    (new_board, algorithm_score) = decide(board, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
+    (new_board, algorithm_score) = decide(board, pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points, )
     board = new_board
-    print(f"Algorithm score: {algorithm_score}")
+    print(f"Algorithm 1 score: {algorithm_score}")
     if algorithm_score >= SCORE_FOR_WIN:
         print(f"You lost, Your Score = {recorded_score}")
         return True
@@ -95,6 +95,7 @@ def algorithm_move():
 # Game Loop
 running = True
 player_turn = True
+pruning = True
 while running:
     # background colour
     window.fill(BLUE)
@@ -102,7 +103,8 @@ while running:
     # Algorithm Move
     if not player_turn:
         player_turn = True
-        if algorithm_move():
+        if algorithm_move(pruning):
+            running = False
             pass
 
     # handling events
@@ -117,9 +119,12 @@ while running:
             if player_turn:
                 player_turn = False
                 if player_move(column):
+                    running = False
                     pass
     # draw the board
     draw_board(board)
 
     # update window
     pygame.display.update()
+
+print_board(board)

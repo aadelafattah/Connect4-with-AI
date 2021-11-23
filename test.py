@@ -15,50 +15,38 @@ points = {  # Number of pieces of same player in a sequence --> its score
     4: 1000
 }
 
+
 board = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 
-# command line testing
 
-# end_loop = False
-# player_one_move = True
-# while not end_loop:
-#     print_board(board)
-#     if player_one_move:
-#         try:
-#             column_1 = int(input("Player one> "))
-#             if add_to_board(board, PLAYER_ONE_PIECE,ROW_COUNT, column_1):
-#                 score = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
-#                 if score >= SCORE_FOR_WIN:
-#                     print("congrats!! one")
-#                     end_loop = True
-#             else:
-#                 print("Wrong move!!")
-#                 continue
-#             player_one_move = False
-#         except ValueError:
-#             print("Wrong Input!!")
-#             continue
-#     else:
-#         try:
-#             column_2 = int(input("Player two> "))
-#             if add_to_board(board, PLAYER_TWO_PIECE,ROW_COUNT, column_2):
-#                 score = get_score(board,2,ROW_COUNT,COLUMN_COUNT,NUMBER_OF_MAKES,points)
-#                 if score >= SCORE_FOR_WIN:
-#                     print("congrats!! two")
-#                     end_loop = True
-#             else:
-#                 print("Wrong move!!")
-#                 continue
-#             player_one_move = True
-#         except ValueError:
-#             print("Wrong Input!!")
-#             continue
-#
-# print_board(board)
-
-
+pruning = True
 quit_loop = False
 player_one_move = True
+
+# while quit_loop:
+#     global pruning
+#     p = False
+#     x = input("would you like pruning (Y) or no (N): ").upper()
+#     if x.__eq__('Y'):
+#         p = True
+#         quit_loop = True
+#     elif x.__eq__('N'):
+#         p = False
+#         quit_loop = True
+#     else:
+#         print("WRONG ANSWER!")
+#
+#     pruning = p
+#
+
+
+x = input("would you like pruning (Y) or no (N): ").upper()
+if x.__eq__('Y'):
+    pruning = True
+elif x.__eq__('N'):
+    pruning = False
+
+quit_loop = False
 
 while not quit_loop:
     # Print Game grid
@@ -89,9 +77,9 @@ while not quit_loop:
     # Player Two (algorithm) Move
     else:
         player_one_move = True
-        (board, algorithm_score) = decide(board, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
-        # (board, algorithm_score) = min_max(board, DEPTH, float('-inf'), float('inf'), True, ROW_COUNT, COLUMN_COUNT,
-        #                                    NUMBER_OF_MAKES, points)
+        (board, algorithm_score) = decide(board, pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points)
+        # (board, algorithm_score) = min_max(board,pruning, DEPTH, float('-inf'), float('inf'), True, ROW_COUNT,
+        # COLUMN_COUNT, NUMBER_OF_MAKES, points)
         print(f"Algorithm score: {algorithm_score}")
         if algorithm_score < SCORE_FOR_WIN:
             continue
