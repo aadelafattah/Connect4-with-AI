@@ -6,7 +6,7 @@ ROW_COUNT = 6
 COLUMN_COUNT = 7
 PLAYER_ONE_PIECE = 1
 PLAYER_TWO_PIECE = 2
-SCORE_FOR_WIN = 1000
+SCORE_FOR_WIN = 950
 DEPTH = 6
 
 PIXEL_UNIT = 100
@@ -14,7 +14,7 @@ RED = (190, 50, 55)
 YELLOW = (245, 210, 80)
 BLUE = (98, 5, 238)
 DARK_BLUE = (40, 80, 160)
-GREY = (211, 211, 211)
+GREY = (122, 123, 142)
 LEN_PIC_PIX = 95
 
 recorded_score = 0
@@ -47,6 +47,7 @@ yellow_ball = pygame.image.load('yellow.png')
 
 
 def draw_board(grid):
+    # putting the images
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT):
             coordinates = (column_difference + PIXEL_UNIT * c, row_difference + PIXEL_UNIT * r)
@@ -56,6 +57,10 @@ def draw_board(grid):
                 window.blit(yellow_ball, coordinates)
             else:
                 pass
+    # drawing the lines
+    for i in range(COLUMN_COUNT):
+        pygame.draw.line(window, GREY, (PIXEL_UNIT * i, 0), (PIXEL_UNIT * i, PIXEL_UNIT * ROW_COUNT),
+                         int(column_difference))
 
 
 # player move
@@ -89,29 +94,32 @@ def algorithm_move():
 
 # Game Loop
 running = True
+player_turn = True
 while running:
     # background colour
     window.fill(BLUE)
 
-    # draw the board
-    draw_board(board)
-    # window.blit(red_ball, (ROW_COUNT * PIXEL_UNIT / 2, COLUMN_COUNT * PIXEL_UNIT / 2))
-    # window.blit(yellow_ball, ((ROW_COUNT * PIXEL_UNIT / 2) + 100, (COLUMN_COUNT * PIXEL_UNIT / 2) + 100))
+    # Algorithm Move
+    if not player_turn:
+        player_turn = True
+        if algorithm_move():
+            pass
 
     # handling events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # player move
         elif event.type == pygame.MOUSEBUTTONDOWN:
             (x, y) = pygame.mouse.get_pos()
             print(x, y)
             column = x // 100
-            if player_move(column):
-                pass
-            else:
-                pygame.display.update()
-                if algorithm_move():
+            if player_turn:
+                player_turn = False
+                if player_move(column):
                     pass
+    # draw the board
+    draw_board(board)
 
     # update window
     pygame.display.update()
