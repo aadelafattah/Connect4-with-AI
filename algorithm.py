@@ -157,7 +157,7 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
     return False
 
 
-def get_score(board, player_piece, row_count, column_count, number_of_makes, point_dictionary):
+def get_utility(board, player_piece, row_count, column_count, number_of_makes, point_dictionary):
     number_of_unfinished_makes = number_of_makes - 1
     score = 0
     # Horizontal check
@@ -210,9 +210,9 @@ def minimize(board, pruning, depth, alpha, beta, the_maximising_player, row_coun
              point_dictionary):
     player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
-                                point_dictionary) - get_score(board, 1 if the_maximising_player else 2, row_count,
-                                                              column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
+                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
+                                                                  column_count, number_of_makes, point_dictionary)
 
     (min_child, min_utility) = (None, float('inf'))
 
@@ -237,9 +237,9 @@ def maximize(board, pruning, depth, alpha, beta, the_maximising_player, row_coun
              point_dictionary):
     player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
-                                point_dictionary) - get_score(board, 1 if the_maximising_player else 2, row_count,
-                                                              column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
+                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
+                                                                  column_count, number_of_makes, point_dictionary)
 
     (max_child, max_utility) = (None, float('-inf'))
 
@@ -272,9 +272,9 @@ def min_max(board, pruning, depth, alpha, beta, the_maximising_player, row_count
             point_dictionary):
     player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_score(board, player_piece, row_count, column_count, number_of_makes,
-                                point_dictionary) - get_score(board, 1 if the_maximising_player else 2, row_count,
-                                                              column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
+                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
+                                                                  column_count, number_of_makes, point_dictionary)
 
     if the_maximising_player:
         max_child, max_score = None, float('-inf')
