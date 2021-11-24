@@ -140,6 +140,5 @@ while running:
     if is_full(board):
         running = False
         print(AI_SCORE, PLAYER_SCORE)
-        time.sleep(10)
 
 print_board(board)
