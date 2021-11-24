@@ -103,11 +103,11 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
             for i in range(number_of_makes):
                 if row[index + i] == player_piece:
                     confirmed_assignment += 1
-                if row[index + i] == replacement_piece:
+                elif row[index + i] == replacement_piece:
                     replacement_piece_assignment += 1
             # if true then we have number_of_makes (4) or bigger in a row, then we  replace them with replacement_piece
-            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
-                    replacement_piece_assignment < number_of_makes):
+            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and not (
+                    confirmed_assignment == 0):
                 replace_in_row(board, k, index, confirmed_assignment + replacement_piece_assignment, replacement_piece)
                 # 0 0 0 0 3
                 # 0 0 0 0 3
@@ -126,8 +126,8 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
             for i in range(number_of_makes):
                 if board[row + i][col] == player_piece:
                     confirmed_assignment += 1
-                if board[row + i][col] == replacement_piece:
-                    confirmed_assignment += 1
+                elif board[row + i][col] == replacement_piece:
+                    replacement_piece_assignment += 1 # there was confirmed_assignment instead of replacement_piece_assignment
             # if true then we have number_of_makes (4) in a column or bigger, then we  replace them with
             # replacement_piece
             if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
@@ -145,7 +145,7 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
             for i in range(number_of_makes):
                 if board[row + i][col + i] == player_piece:
                     confirmed_assignment += 1
-                if board[row + i][col + i] == replacement_piece:
+                elif board[row + i][col + i] == replacement_piece:
                     replacement_piece_assignment += 1
             # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
             # replacement_piece
@@ -165,7 +165,7 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
             for i in range(number_of_makes):
                 if board[row + i][col - i] == player_piece:
                     confirmed_assignment += 1
-                if board[row + i][col - i] == replacement_piece:
+                elif board[row + i][col - i] == replacement_piece:
                     replacement_piece_assignment += 1
             # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
             # replacement_piece
@@ -271,8 +271,7 @@ def minimize(board, pruning, depth, alpha, beta, row_count, column_count, number
     return min_child, min_utility
 
 
-def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes,
-             pieces):
+def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces):
     # player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
         return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,

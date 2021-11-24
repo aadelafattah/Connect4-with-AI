@@ -93,9 +93,9 @@ def algorithm_move(with_pruning):
         "replacement1": PLAYER_ONE_REPLACEMENT,
         "replacement2": PLAYER_TWO_REPLACEMENT
     }
-    (new_board, algorithm_score) = min_max(board, with_pruning, DEPTH, True, float('-inf'), float('inf'), ROW_COUNT,
-                                           COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
-    # (new_board, algorithm_score) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    # (new_board, algorithm_score) = min_max(board, with_pruning, DEPTH, True, float('-inf'), float('inf'), ROW_COUNT,
+    #                                        COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    (new_board, algorithm_score) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
     board = new_board
     move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
                                         NUMBER_OF_MAKES)
