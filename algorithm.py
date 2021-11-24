@@ -61,6 +61,102 @@ def get_children(board, player_piece, row_count, column_count):
     return children
 
 
+def replace_in_row(board, start_row, start_col, number_of_makes, replacement_piece):
+    for j in range(start_col, start_col + number_of_makes):
+        board[start_row][j] = replacement_piece
+
+
+def replace_in_col(board, start_row, start_col, number_of_makes, replacement_piece):
+    for j in range(start_row, start_row + number_of_makes):
+        board[j][start_col] = replacement_piece
+
+
+def replace_in_diagonal_1(board, start_row, start_col, number_of_makes, replacement_piece):
+    i = start_row
+    j = start_col
+    while (i < start_row + number_of_makes) and (j < start_col + number_of_makes):
+        board[i][j] = replacement_piece
+        i += 1
+        j += 1
+
+
+def replace_in_diagonal_2(board, start_row, start_col, number_of_makes, replacement_piece):
+    i = start_row
+    j = start_col
+    while (i < start_row + number_of_makes) and (j > start_col - number_of_makes):
+        board[i][j] = replacement_piece
+        i += 1
+        j -= 1
+
+
+def get_score_with_remove(board, player_piece, replacement_piece, row_count, column_count, number_of_makes):
+    number_of_unfinished_makes = number_of_makes - 1
+    score = 0
+    # Horizontal check
+    k = 0
+    for row in board:
+        for index in range(column_count - number_of_unfinished_makes):
+            confirmed_assignment = 0
+            for i in range(number_of_makes):
+                if row[index + i] == player_piece:
+                    confirmed_assignment += 1
+
+            if confirmed_assignment == number_of_makes:
+                # if true then we have number_of_makes (4) in a row, then we  replace them with replacement_piece
+                replace_in_row(board, k, index, number_of_makes, replacement_piece)
+                # return true meaning that we have a winning move
+                return True
+        k += 1
+        # score += point_dictionary.get(confirmed_assignment)
+
+    # Vertical check
+    for col in range(column_count):
+        for row in range(row_count - number_of_unfinished_makes):
+            confirmed_assignment = 0
+            for i in range(number_of_makes):
+                if board[row + i][col] == player_piece:
+                    confirmed_assignment += 1
+            if confirmed_assignment == number_of_makes:
+                # if true then we have number_of_makes (4) in a column, then we  replace them with replacement_piece
+                replace_in_col(board, row, col, number_of_makes, replacement_piece)
+                # return true meaning that we have a winning move
+                return True
+            # score += point_dictionary.get(confirmed_assignment)
+
+    # top to bottom, left to right diagonal check, type (1)
+    for row in range(row_count - number_of_unfinished_makes):
+        for col in range(column_count - number_of_unfinished_makes):
+            confirmed_assignment = 0
+            for i in range(number_of_makes):
+                if board[row + i][col + i] == player_piece:
+                    confirmed_assignment += 1
+            if confirmed_assignment == number_of_makes:
+                # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
+                # replacement_piece
+                replace_in_diagonal_1(board, row, col, number_of_makes, replacement_piece)
+                # return true meaning that we have a winning move
+                return True
+            # score += point_dictionary.get(confirmed_assignment)
+
+    # bottom to top, right to left diagonal check, type (2)
+    for row in range(row_count - number_of_unfinished_makes):
+        for col in range(column_count - 1, number_of_unfinished_makes - 1, -1):
+            confirmed_assignment = 0
+            for i in range(number_of_makes):
+                if board[row + i][col - i] == player_piece:
+                    confirmed_assignment += 1
+            if confirmed_assignment == number_of_makes:
+                # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
+                # replacement_piece
+                replace_in_diagonal_2(board, row, col, number_of_makes, replacement_piece)
+                # return true meaning that we have a winning move
+                return True
+            # score += point_dictionary.get(confirmed_assignment)
+
+    # this move didn't give a win
+    return False
+
+
 def get_score(board, player_piece, row_count, column_count, number_of_makes, point_dictionary):
     number_of_unfinished_makes = number_of_makes - 1
     score = 0
