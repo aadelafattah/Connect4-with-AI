@@ -1,15 +1,20 @@
+import time
+
 import pygame
-from algorithm import decide, get_score, add_to_board, print_board, is_full
+from algorithm import decide, get_score, add_to_board, print_board, is_full, get_score_with_remove
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 PLAYER_ONE_PIECE = 1
 PLAYER_TWO_PIECE = 2
+PLAYER_ONE_REPLACEMENT = 3
+PLAYER_TWO_REPLACEMENT = 4
+
 SCORE_FOR_WIN = 950
 DEPTH = 6
-PLAYER_SCORE=0
-AI_SCORE=0
+PLAYER_SCORE = 0
+AI_SCORE = 0
 
 PIXEL_UNIT = 100
 BLUE = (50, 100, 230)
@@ -51,19 +56,19 @@ def draw_board(grid):
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT):
             coordinates = (column_difference + PIXEL_UNIT * c, row_difference + PIXEL_UNIT * r)
-            if grid[r][c] == PLAYER_ONE_PIECE:
+            if (grid[r][c] == PLAYER_ONE_PIECE) or (grid[r][c] == PLAYER_ONE_REPLACEMENT):
                 window.blit(red_ball, coordinates)
-            elif grid[r][c] == PLAYER_TWO_PIECE:
+            elif (grid[r][c] == PLAYER_TWO_PIECE) or (grid[r][c] == PLAYER_TWO_REPLACEMENT):
                 window.blit(yellow_ball, coordinates)
             else:
                 pass
     # drawing the lines
-    for i in range(COLUMN_COUNT+1):
+    for i in range(COLUMN_COUNT + 1):
         pygame.draw.line(window, GREY, (PIXEL_UNIT * i, 0), (PIXEL_UNIT * i, PIXEL_UNIT * ROW_COUNT),
                          int(column_difference))
 
-    for i in range(ROW_COUNT+1):
-        pygame.draw.line(window, GREY, (0, PIXEL_UNIT * i), (PIXEL_UNIT * COLUMN_COUNT,PIXEL_UNIT * i),
+    for i in range(ROW_COUNT + 1):
+        pygame.draw.line(window, GREY, (0, PIXEL_UNIT * i), (PIXEL_UNIT * COLUMN_COUNT, PIXEL_UNIT * i),
                          int(row_difference))
 
 
@@ -71,14 +76,15 @@ def draw_board(grid):
 def player_move(column):
     global recorded_score
     if add_to_board(board, PLAYER_ONE_PIECE, ROW_COUNT, column):
-        score = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_score(board, 2,
+        score_1 = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_score(board, 2,
                                                                                                   ROW_COUNT,
                                                                                                   COLUMN_COUNT,
                                                                                                   NUMBER_OF_MAKES,
                                                                                                   points)
-        recorded_score = score
+        recorded_score = score_1
         print(f"Player score: {recorded_score}")
         if recorded_score >= SCORE_FOR_WIN:
+            get_score_with_remove(board, 1, 3, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
             print(f"Congrats Player, Your Score = {recorded_score}")
             return True
         return False
@@ -91,6 +97,7 @@ def algorithm_move(pruning):
     board = new_board
     print(f"AI score: {algorithm_score}")
     if algorithm_score >= SCORE_FOR_WIN:
+        get_score_with_remove(board, 2, 4, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
         print(f"You lost, Your Score = {recorded_score}")
         return True
     return False
@@ -131,7 +138,7 @@ while running:
     pygame.display.update()
 
     if is_full(board):
-        running= False
+        running = False
         print(AI_SCORE, PLAYER_SCORE)
 
 print_board(board)
