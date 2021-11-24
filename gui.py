@@ -39,11 +39,11 @@ window = pygame.display.set_mode((COLUMN_COUNT * PIXEL_UNIT, ROW_COUNT * PIXEL_U
 
 # Title and Icon
 pygame.display.set_caption("Make Connect 4")
-pygame.display.set_icon(pygame.image.load('connect.png'))
+pygame.display.set_icon(pygame.image.load('assets/connect.png'))
 
 # Balls
-red_ball = pygame.image.load('red.png')
-yellow_ball = pygame.image.load('yellow.png')
+red_ball = pygame.image.load('assets/red.png')
+yellow_ball = pygame.image.load('assets/yellow.png')
 
 
 def draw_board(grid):
