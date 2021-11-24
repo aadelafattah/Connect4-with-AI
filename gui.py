@@ -1,5 +1,5 @@
 import pygame
-from algorithm import decide, get_score, add_to_board, print_board
+from algorithm import decide, get_score, add_to_board, print_board, is_full
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -8,11 +8,11 @@ PLAYER_ONE_PIECE = 1
 PLAYER_TWO_PIECE = 2
 SCORE_FOR_WIN = 950
 DEPTH = 6
+PLAYER_SCORE=0
+AI_SCORE=0
 
 PIXEL_UNIT = 100
-RED = (190, 50, 55)
-YELLOW = (245, 210, 80)
-BLUE = (98, 5, 238)
+BLUE = (50, 100, 230)
 DARK_BLUE = (40, 80, 160)
 GREY = (122, 123, 142)
 LEN_PIC_PIX = 95
@@ -58,9 +58,13 @@ def draw_board(grid):
             else:
                 pass
     # drawing the lines
-    for i in range(COLUMN_COUNT):
+    for i in range(COLUMN_COUNT+1):
         pygame.draw.line(window, GREY, (PIXEL_UNIT * i, 0), (PIXEL_UNIT * i, PIXEL_UNIT * ROW_COUNT),
                          int(column_difference))
+
+    for i in range(ROW_COUNT+1):
+        pygame.draw.line(window, GREY, (0, PIXEL_UNIT * i), (PIXEL_UNIT * COLUMN_COUNT,PIXEL_UNIT * i),
+                         int(row_difference))
 
 
 # player move
@@ -85,7 +89,7 @@ def algorithm_move(pruning):
     global board
     (new_board, algorithm_score) = decide(board, pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points, )
     board = new_board
-    print(f"Algorithm 1 score: {algorithm_score}")
+    print(f"AI score: {algorithm_score}")
     if algorithm_score >= SCORE_FOR_WIN:
         print(f"You lost, Your Score = {recorded_score}")
         return True
@@ -104,7 +108,7 @@ while running:
     if not player_turn:
         player_turn = True
         if algorithm_move(pruning):
-            running = False
+            AI_SCORE = AI_SCORE + 1
             pass
 
     # handling events
@@ -114,17 +118,20 @@ while running:
         # player move
         elif event.type == pygame.MOUSEBUTTONDOWN:
             (x, y) = pygame.mouse.get_pos()
-            print(x, y)
             column = x // 100
             if player_turn:
                 player_turn = False
                 if player_move(column):
-                    running = False
+                    PLAYER_SCORE = PLAYER_SCORE + 1
                     pass
     # draw the board
     draw_board(board)
 
     # update window
     pygame.display.update()
+
+    if is_full(board):
+        running= False
+        print(AI_SCORE, PLAYER_SCORE)
 
 print_board(board)
