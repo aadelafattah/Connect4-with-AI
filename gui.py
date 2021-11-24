@@ -1,7 +1,7 @@
 import time
 
 import pygame
-from algorithm import decide, get_score, add_to_board, print_board, is_full, get_score_with_remove
+from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -11,10 +11,10 @@ PLAYER_TWO_PIECE = 2
 PLAYER_ONE_REPLACEMENT = 3
 PLAYER_TWO_REPLACEMENT = 4
 
-SCORE_FOR_WIN = 950
+SCORE_FOR_WIN = 9550
 DEPTH = 6
-PLAYER_SCORE = 0
-AI_SCORE = 0
+PLAYER_POINTS = 0
+AI_POINTS = 0
 
 PIXEL_UNIT = 100
 BLUE = (50, 100, 230)
@@ -31,7 +31,7 @@ points = {  # Number of pieces of same player in a sequence --> its score
     1: 0,
     2: 2,
     3: 5,
-    4: 1000
+    4: 10000
 }
 
 board = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
@@ -74,33 +74,46 @@ def draw_board(grid):
 
 # player move
 def player_move(column):
-    global recorded_score
+    # global recorded_score
+    global PLAYER_POINTS
     if add_to_board(board, PLAYER_ONE_PIECE, ROW_COUNT, column):
-        score_1 = get_score(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_score(board, 2,
-                                                                                                  ROW_COUNT,
-                                                                                                  COLUMN_COUNT,
-                                                                                                  NUMBER_OF_MAKES,
-                                                                                                  points)
-        recorded_score = score_1
-        print(f"Player score: {recorded_score}")
-        if recorded_score >= SCORE_FOR_WIN:
-            get_score_with_remove(board, 1, 3, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
-            print(f"Congrats Player, Your Score = {recorded_score}")
+        winning_move = get_score_with_remove(board, PLAYER_ONE_PIECE, PLAYER_ONE_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
+                                      NUMBER_OF_MAKES)
+        if winning_move:
+            PLAYER_POINTS += 1
             return True
-        return False
+    return False
+        # score_1 = get_utility(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_utility(board, 2,
+        #                                                                                                 ROW_COUNT,
+        #                                                                                                 COLUMN_COUNT,
+        #                                                                                                 NUMBER_OF_MAKES,
+        #                                                                                                 points)
+        # recorded_score = score_1
+        # print(f"Player score: {recorded_score}")
+        # if recorded_score >= SCORE_FOR_WIN:
+        #     get_score_with_remove(board, 1, 3, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
+        #     print(f"Congrats Player, Your Score = {recorded_score}")
+        #     return True
+        # return False
 
 
 # Algorithm Move 1
 def algorithm_move(pruning):
     global board
+    global AI_POINTS
     (new_board, algorithm_score) = decide(board, pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points, )
     board = new_board
-    print(f"AI score: {algorithm_score}")
-    if algorithm_score >= SCORE_FOR_WIN:
-        get_score_with_remove(board, 2, 4, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
-        print(f"You lost, Your Score = {recorded_score}")
+    winning_move = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT,COLUMN_COUNT,NUMBER_OF_MAKES)
+    if winning_move:
+        AI_POINTS += 1
         return True
     return False
+    # print(f"AI score: {algorithm_score}")
+    # if algorithm_score >= SCORE_FOR_WIN:
+    #     get_score_with_remove(board, 2, 4, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
+    #     print(f"You lost, Your Score = {recorded_score}")
+    #     return True
+    # return False
 
 
 # Game Loop
@@ -115,8 +128,9 @@ while running:
     if not player_turn:
         player_turn = True
         if algorithm_move(pruning):
-            AI_SCORE = AI_SCORE + 1
-            pass
+            print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
+            # AI_POINTS = AI_POINTS + 1
+            # pass
 
     # handling events
     for event in pygame.event.get():
@@ -129,8 +143,9 @@ while running:
             if player_turn:
                 player_turn = False
                 if player_move(column):
-                    PLAYER_SCORE = PLAYER_SCORE + 1
-                    pass
+                    print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
+                    # PLAYER_POINTS = PLAYER_POINTS + 1
+                    # pass
     # draw the board
     draw_board(board)
 
@@ -139,6 +154,6 @@ while running:
 
     if is_full(board):
         running = False
-        print(AI_SCORE, PLAYER_SCORE)
+        print(AI_POINTS, PLAYER_POINTS)
 
 print_board(board)
