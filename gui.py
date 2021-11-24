@@ -1,7 +1,5 @@
-import time
-
 import pygame
-from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove
+from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove, min_max
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -77,43 +75,34 @@ def player_move(column):
     # global recorded_score
     global PLAYER_POINTS
     if add_to_board(board, PLAYER_ONE_PIECE, ROW_COUNT, column):
-        winning_move = get_score_with_remove(board, PLAYER_ONE_PIECE, PLAYER_ONE_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
-                                      NUMBER_OF_MAKES)
-        if winning_move:
-            PLAYER_POINTS += 1
+        move_points = get_score_with_remove(board, PLAYER_ONE_PIECE, PLAYER_ONE_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
+                                            NUMBER_OF_MAKES)
+        if move_points > 0:
+            PLAYER_POINTS += move_points
             return True
     return False
-        # score_1 = get_utility(board, 1, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points) - get_utility(board, 2,
-        #                                                                                                 ROW_COUNT,
-        #                                                                                                 COLUMN_COUNT,
-        #                                                                                                 NUMBER_OF_MAKES,
-        #                                                                                                 points)
-        # recorded_score = score_1
-        # print(f"Player score: {recorded_score}")
-        # if recorded_score >= SCORE_FOR_WIN:
-        #     get_score_with_remove(board, 1, 3, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
-        #     print(f"Congrats Player, Your Score = {recorded_score}")
-        #     return True
-        # return False
 
 
 # Algorithm Move 1
-def algorithm_move(pruning):
+def algorithm_move(with_pruning):
     global board
     global AI_POINTS
-    (new_board, algorithm_score) = decide(board, pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, points, )
+    pieces = {
+        "player1": PLAYER_ONE_PIECE,
+        "player2": PLAYER_TWO_PIECE,
+        "replacement1": PLAYER_ONE_REPLACEMENT,
+        "replacement2": PLAYER_TWO_REPLACEMENT
+    }
+    (new_board, algorithm_score) = min_max(board, with_pruning, DEPTH, True, float('-inf'), float('inf'), ROW_COUNT,
+                                           COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    # (new_board, algorithm_score) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
     board = new_board
-    winning_move = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT,COLUMN_COUNT,NUMBER_OF_MAKES)
-    if winning_move:
-        AI_POINTS += 1
+    move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
+                                        NUMBER_OF_MAKES)
+    if move_points > 0:
+        AI_POINTS += move_points
         return True
     return False
-    # print(f"AI score: {algorithm_score}")
-    # if algorithm_score >= SCORE_FOR_WIN:
-    #     get_score_with_remove(board, 2, 4, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES)
-    #     print(f"You lost, Your Score = {recorded_score}")
-    #     return True
-    # return False
 
 
 # Game Loop

@@ -89,23 +89,32 @@ def replace_in_diagonal_2(board, start_row, start_col, number_of_makes, replacem
         j -= 1
 
 
+# returns (+ve) number as the points of the move if winning, (-ve) if not winning
 def get_score_with_remove(board, player_piece, replacement_piece, row_count, column_count, number_of_makes):
     number_of_unfinished_makes = number_of_makes - 1
-    score = 0
+    # score = 0
+    points = 0
     # Horizontal check
     k = 0
     for row in board:
         for index in range(column_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if row[index + i] == player_piece:
                     confirmed_assignment += 1
-
-            if confirmed_assignment == number_of_makes:
-                # if true then we have number_of_makes (4) in a row, then we  replace them with replacement_piece
-                replace_in_row(board, k, index, number_of_makes, replacement_piece)
-                # return true meaning that we have a winning move
-                return True
+                if row[index + i] == replacement_piece:
+                    replacement_piece_assignment += 1
+            # if true then we have number_of_makes (4) or bigger in a row, then we  replace them with replacement_piece
+            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
+                    replacement_piece_assignment < number_of_makes):
+                replace_in_row(board, k, index, confirmed_assignment + replacement_piece_assignment, replacement_piece)
+                # 0 0 0 0 3
+                # 0 0 0 0 3
+                # 0 0 3 0 3
+                # 1 1 3 1 3  --> 4 + 5 - 2 * 4 + 2 = 3
+                # return the number of points when winning, or returns a (-ve) number if no winning
+                points += confirmed_assignment + replacement_piece_assignment - number_of_makes + 1
         k += 1
         # score += point_dictionary.get(confirmed_assignment)
 
@@ -113,113 +122,142 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
     for col in range(column_count):
         for row in range(row_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col] == player_piece:
                     confirmed_assignment += 1
-            if confirmed_assignment == number_of_makes:
-                # if true then we have number_of_makes (4) in a column, then we  replace them with replacement_piece
-                replace_in_col(board, row, col, number_of_makes, replacement_piece)
+                if board[row + i][col] == replacement_piece:
+                    confirmed_assignment += 1
+            # if true then we have number_of_makes (4) in a column or bigger, then we  replace them with
+            # replacement_piece
+            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
+                    replacement_piece_assignment < number_of_makes):
+                replace_in_col(board, row, col, confirmed_assignment + replacement_piece_assignment, replacement_piece)
                 # return true meaning that we have a winning move
-                return True
+                points += confirmed_assignment + replacement_piece_assignment - number_of_makes + 1
             # score += point_dictionary.get(confirmed_assignment)
 
     # top to bottom, left to right diagonal check, type (1)
     for row in range(row_count - number_of_unfinished_makes):
         for col in range(column_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col + i] == player_piece:
                     confirmed_assignment += 1
-            if confirmed_assignment == number_of_makes:
-                # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
-                # replacement_piece
-                replace_in_diagonal_1(board, row, col, number_of_makes, replacement_piece)
+                if board[row + i][col + i] == replacement_piece:
+                    replacement_piece_assignment += 1
+            # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
+            # replacement_piece
+            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
+                    replacement_piece_assignment < number_of_makes):
+                replace_in_diagonal_1(board, row, col, confirmed_assignment + replacement_piece_assignment,
+                                      replacement_piece)
                 # return true meaning that we have a winning move
-                return True
+                points += confirmed_assignment + replacement_piece_assignment - number_of_makes + 1
             # score += point_dictionary.get(confirmed_assignment)
 
     # bottom to top, right to left diagonal check, type (2)
     for row in range(row_count - number_of_unfinished_makes):
         for col in range(column_count - 1, number_of_unfinished_makes - 1, -1):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col - i] == player_piece:
                     confirmed_assignment += 1
-            if confirmed_assignment == number_of_makes:
-                # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
-                # replacement_piece
-                replace_in_diagonal_2(board, row, col, number_of_makes, replacement_piece)
+                if board[row + i][col - i] == replacement_piece:
+                    replacement_piece_assignment += 1
+            # if true then we have number_of_makes (4) in a diagonal line, then we  replace them with
+            # replacement_piece
+            if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
+                    replacement_piece_assignment < number_of_makes):
+                replace_in_diagonal_2(board, row, col, confirmed_assignment + replacement_piece_assignment,
+                                      replacement_piece)
                 # return true meaning that we have a winning move
-                return True
+                points += confirmed_assignment + replacement_piece_assignment - number_of_makes + 1
             # score += point_dictionary.get(confirmed_assignment)
 
-    # this move didn't give a win
-    return False
+    return points
 
 
-def get_utility(board, player_piece, row_count, column_count, number_of_makes, point_dictionary):
+def get_utility(board, player_piece, replacement_piece, row_count, column_count, number_of_makes):
     number_of_unfinished_makes = number_of_makes - 1
     score = 0
     # Horizontal check
     for row in board:
         for index in range(column_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if row[index + i] == player_piece:
                     confirmed_assignment += 1
+                if row[index + i] == replacement_piece:
+                    replacement_piece_assignment += 1
             # if confirmed_assignment == number_of_makes:
             #     return True
-            score += point_dictionary.get(confirmed_assignment)
+            score += 3 ** (confirmed_assignment + replacement_piece_assignment)
+            # score += point_dictionary.get(confirmed_assignment)
 
     # Vertical check
     for col in range(column_count):
         for row in range(row_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col] == player_piece:
                     confirmed_assignment += 1
+                if board[row + i][col] == replacement_piece:
+                    replacement_piece_assignment += 1
             # if confirmed_assignment == number_of_makes:
             #     return True
-            score += point_dictionary.get(confirmed_assignment)
+            score += 3 ** (confirmed_assignment + replacement_piece_assignment)
+            # score += point_dictionary.get(confirmed_assignment)
 
     # top to bottom, left to right diagonal check
     for row in range(row_count - number_of_unfinished_makes):
         for col in range(column_count - number_of_unfinished_makes):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col + i] == player_piece:
                     confirmed_assignment += 1
+                if board[row + i][col + i] == replacement_piece:
+                    replacement_piece_assignment += 1
             # if confirmed_assignment == number_of_makes:
             #     return True
-            score += point_dictionary.get(confirmed_assignment)
+            score += 3 ** (confirmed_assignment + replacement_piece_assignment)
+            # score += point_dictionary.get(confirmed_assignment)
 
     # bottom to top, right to left diagonal check
     for row in range(row_count - number_of_unfinished_makes):
         for col in range(column_count - 1, number_of_unfinished_makes - 1, -1):
             confirmed_assignment = 0
+            replacement_piece_assignment = 0
             for i in range(number_of_makes):
                 if board[row + i][col - i] == player_piece:
                     confirmed_assignment += 1
+                if board[row + i][col - i] == replacement_piece:
+                    replacement_piece_assignment += 1
             # if confirmed_assignment == number_of_makes:
             #     return True
-            score += point_dictionary.get(confirmed_assignment)
+            score += 3 ** (confirmed_assignment + replacement_piece_assignment)
+            # score += point_dictionary.get(confirmed_assignment)
     return score
 
 
-def minimize(board, pruning, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
-             point_dictionary):
-    player_piece = 2 if the_maximising_player else 1
+def minimize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces):
+    # player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
-                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
-                                                                  column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
+                                  number_of_makes) - get_utility(board, pieces.get("player1"),
+                                                                 pieces.get("replacement1"), row_count, column_count,
+                                                                 number_of_makes)
 
     (min_child, min_utility) = (None, float('inf'))
 
-    for child in get_children(board, player_piece, row_count, column_count):
-        (new_child, utility) = maximize(child, pruning, depth - 1, alpha, beta, True, row_count, column_count,
-                                        number_of_makes,
-                                        point_dictionary)
+    for child in get_children(board, pieces.get("player1"), row_count, column_count):
+        (new_child, utility) = maximize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
+                                        number_of_makes, pieces)
 
         if utility < min_utility:
             (min_child, min_utility) = (child, utility)
@@ -233,20 +271,20 @@ def minimize(board, pruning, depth, alpha, beta, the_maximising_player, row_coun
     return min_child, min_utility
 
 
-def maximize(board, pruning, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
-             point_dictionary):
-    player_piece = 2 if the_maximising_player else 1
+def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes,
+             pieces):
+    # player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
-                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
-                                                                  column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
+                                  number_of_makes) - get_utility(board, pieces.get("player1"),
+                                                                 pieces.get("replacement1"), row_count,
+                                                                 column_count, number_of_makes)
 
     (max_child, max_utility) = (None, float('-inf'))
 
-    for child in get_children(board, player_piece, row_count, column_count):
-        new_child, utility = minimize(child, pruning, depth - 1, alpha, beta, False, row_count, column_count,
-                                      number_of_makes,
-                                      point_dictionary)
+    for child in get_children(board, pieces.get("player2"), row_count, column_count):
+        new_child, utility = minimize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
+                                      number_of_makes, pieces)
 
         if utility > max_utility:
             (max_child, max_utility) = (child, utility)
@@ -260,29 +298,28 @@ def maximize(board, pruning, depth, alpha, beta, the_maximising_player, row_coun
     return max_child, max_utility
 
 
-def decide(board, pruning, depth, row_count, column_count, number_of_makes,
-           point_dictionary):
-    (child, max_utility) = maximize(board, pruning, depth, float('-inf'), float('inf'), True, row_count, column_count,
-                                    number_of_makes, point_dictionary)
+def decide(board, pruning, depth, row_count, column_count, number_of_makes, pieces):
+    (child, max_utility) = maximize(board, pruning, depth, float('-inf'), float('inf'), row_count, column_count,
+                                    number_of_makes, pieces)
 
     return child, max_utility
 
 
-def min_max(board, pruning, depth, alpha, beta, the_maximising_player, row_count, column_count, number_of_makes,
-            point_dictionary):
-    player_piece = 2 if the_maximising_player else 1
+def min_max(board, pruning, depth, the_maximising_player, alpha, beta, row_count, column_count, number_of_makes,
+            pieces):
     if (depth == 0) or is_full(board):
-        return board, get_utility(board, player_piece, row_count, column_count, number_of_makes,
-                                  point_dictionary) - get_utility(board, 1 if the_maximising_player else 2, row_count,
-                                                                  column_count, number_of_makes, point_dictionary)
+        return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
+                                  number_of_makes) - get_utility(board, pieces.get("player1"),
+                                                                 pieces.get("replacement1"), row_count, column_count,
+                                                                 number_of_makes)
 
     if the_maximising_player:
         max_child, max_score = None, float('-inf')
 
-        for child in get_children(board, player_piece, row_count, column_count):
+        for child in get_children(board, pieces.get("player2"), row_count, column_count):
             new_child, score = min_max(child, pruning, depth - 1, alpha, beta, False, row_count, column_count,
                                        number_of_makes,
-                                       point_dictionary)
+                                       pieces)
             if score > max_score:
                 max_child, max_score = child, score
 
@@ -294,10 +331,10 @@ def min_max(board, pruning, depth, alpha, beta, the_maximising_player, row_count
 
     else:
         min_child, min_score = None, float('inf')
-        for child in get_children(board, player_piece, row_count, column_count):
+        for child in get_children(board, pieces.get("player1"), row_count, column_count):
             new_child, score = min_max(child, pruning, depth - 1, alpha, beta, True, row_count, column_count,
                                        number_of_makes,
-                                       point_dictionary)
+                                       pieces)
             if score < min_score:
                 min_child, min_score = child, score
 
