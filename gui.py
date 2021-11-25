@@ -1,5 +1,5 @@
 import pygame
-from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove, min_max
+from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove, Tree
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -20,6 +20,8 @@ DARK_BLUE = (40, 80, 160)
 GREY = (122, 123, 142)
 LEN_PIC_PIX = 95
 
+
+current_tree = None
 recorded_score = 0
 row_difference = (PIXEL_UNIT * ROW_COUNT - LEN_PIC_PIX * ROW_COUNT) / (2 * ROW_COUNT)
 column_difference = (PIXEL_UNIT * COLUMN_COUNT - LEN_PIC_PIX * COLUMN_COUNT) / (2 * COLUMN_COUNT)
@@ -87,6 +89,7 @@ def player_move(column):
 def algorithm_move(with_pruning):
     global board
     global AI_POINTS
+    global current_tree
     pieces = {
         "player1": PLAYER_ONE_PIECE,
         "player2": PLAYER_TWO_PIECE,
@@ -95,7 +98,8 @@ def algorithm_move(with_pruning):
     }
     # (new_board, algorithm_score) = min_max(board, with_pruning, DEPTH, True, float('-inf'), float('inf'), ROW_COUNT,
     #                                        COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
-    (new_board, algorithm_score) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    (new_board, algorithm_score, tree) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    current_tree = tree
     board = new_board
     move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
                                         NUMBER_OF_MAKES)
