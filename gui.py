@@ -1,5 +1,7 @@
 import pygame
-from algorithm import decide, add_to_board, print_board, is_full, get_score_with_remove, min_max
+import sys
+
+from algorithm import decide, add_to_board, is_full, get_score_with_remove
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -18,6 +20,12 @@ PIXEL_UNIT = 100
 BLUE = (50, 100, 230)
 DARK_BLUE = (40, 80, 160)
 GREY = (122, 123, 142)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (225, 0, 0)
+BRIGHT_RED = (225, 100, 100)
+GREEN = (0, 225, 0)
+BRIGHT_GREEN = (100, 225, 100)
 LEN_PIC_PIX = 95
 
 recorded_score = 0
@@ -106,43 +114,130 @@ def algorithm_move(with_pruning):
 
 
 # Game Loop
-running = True
-player_turn = True
 pruning = True
-while running:
+
+
+def button(click, mouse, surface, x, y, width, height, color, bright_color):
+    if x + width > mouse[0] > x and y + height > mouse[1] > y:
+        pygame.draw.rect(surface, bright_color, (x, y, width, height))
+        if click[0]:
+            return True
+    else:
+        pygame.draw.rect(surface, color, (x, y, width, height))
+        return False
+
+
+def text_show(message, size, x, y):
+    text = pygame.font.Font('freesansbold.ttf', size)
+    TextSurf = text.render(message, True, BLACK)
+    TextRect = TextSurf.get_rect()
+    TextRect.center = (x, y)
+    window.blit(TextSurf, TextRect)
+
+
+def game_intro():
+    intro = True
+
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        window.fill(WHITE)
+        text_show("Connect 4", 100, window.get_width() / 2, window.get_height() / 2)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+
+        if button(click, mouse, window, window.get_width() / 4, window.get_height() / 4 * 3, 100, 100, GREEN,
+                  BRIGHT_GREEN):
+            return True
+        if button(click, mouse, window, window.get_width() / 3 * 2, window.get_height() / 4 * 3, 100, 100, RED,
+                  BRIGHT_RED):
+            return False
+
+        text_show("with Alpha & Beta", 20, (window.get_width() / 4) + (100 / 2),
+                  window.get_height() / 4 * 3 + (100 / 2))
+        text_show("without Alpha & Beta", 20, (window.get_width() / 3 * 2) + (100 / 2),
+                  window.get_height() / 4 * 3 + (100 / 2))
+
+        pygame.display.update()
+
+
+def game_loop(method):
+    running = True
     # background colour
     window.fill(BLUE)
+    player_turn = True
+    while running:
+        # Algorithm Move
+        if not player_turn:
+            player_turn = True
+            if algorithm_move(method):
+                print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
 
-    # Algorithm Move
-    if not player_turn:
-        player_turn = True
-        if algorithm_move(pruning):
-            print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
-            # AI_POINTS = AI_POINTS + 1
-            # pass
+        # handling events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            # player move
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                (x, y) = pygame.mouse.get_pos()
+                column = x // 100
+                if player_turn and board[0][column] == 0:
+                    player_turn = False
+                    if player_move(column):
+                        print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
 
-    # handling events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        # player move
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            (x, y) = pygame.mouse.get_pos()
-            column = x // 100
-            if player_turn:
-                player_turn = False
-                if player_move(column):
-                    print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
-                    # PLAYER_POINTS = PLAYER_POINTS + 1
-                    # pass
-    # draw the board
-    draw_board(board)
+        # draw the board
+        draw_board(board)
 
-    # update window
-    pygame.display.update()
+        # update window
+        pygame.display.update()
 
-    if is_full(board):
-        running = False
-        print(AI_POINTS, PLAYER_POINTS)
+        if is_full(board):
+            return
 
-print_board(board)
+
+def game_end():
+    end = True
+    pygame.draw.rect(window, WHITE,
+                     (window.get_width() / 5, window.get_height() / 5, window.get_width() / 5 * 3,
+                      window.get_height() / 5 * 3))
+    text_show(f"AI:{AI_POINTS}, Player:{PLAYER_POINTS}", 50, window.get_width() / 2, window.get_height() / 3)
+    while end:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if button(click, mouse, window, window.get_width() / 7 * 2, window.get_height() / 6 * 3, 100, 100, GREEN,
+                  BRIGHT_GREEN):
+            return False
+        if button(click, mouse, window, window.get_width() / 7 * 4, window.get_height() / 6 * 3, 100, 100, RED,
+                  BRIGHT_RED):
+            return True
+        text_show("Again", 25, window.get_width() / 7 * 2 + (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
+        text_show("Quit", 25, window.get_width() / 7 * 4 + (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
+        pygame.display.flip()
+        pygame.display.update()
+
+
+def game_reset():
+    global board, AI_POINTS, PLAYER_POINTS
+    board = [[0 for _ in range(COLUMN_COUNT)] for _ in range(ROW_COUNT)]
+    AI_POINTS = 0
+    PLAYER_POINTS = 0
+
+
+if __name__ == '__main__':
+    while True:
+        pruning = game_intro()
+        game_loop(pruning)
+        if game_end():
+            pygame.quit()
+            sys.exit()
+        else:
+            game_reset()
