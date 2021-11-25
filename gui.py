@@ -1,6 +1,6 @@
 import pygame
 import sys
-from algorithm import decide, add_to_board, is_full, get_score_with_remove, Tree, print_tree
+from algorithm import decide, add_to_board, is_full, get_score_with_remove, print_tree
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -26,7 +26,6 @@ BRIGHT_RED = (225, 100, 100)
 GREEN = (0, 225, 0)
 BRIGHT_GREEN = (100, 225, 100)
 LEN_PIC_PIX = 95
-
 
 current_tree = None
 recorded_score = 0
@@ -184,14 +183,17 @@ def game_loop(method):
             player_turn = True
             if algorithm_move(method):
                 print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
-            if not (current_tree is None):
-                if print_tree(current_tree):
-                    print("TREE VIEWING EXPERIENCE IS DONE!!")
 
         # handling events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            # print the tree
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    if not (current_tree is None):
+                        if print_tree(current_tree):
+                            print("TREE VIEWING EXPERIENCE IS DONE!!")
             # player move
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 (x, y) = pygame.mouse.get_pos()
@@ -207,7 +209,6 @@ def game_loop(method):
 
         # update window
         pygame.display.update()
-
 
         if is_full(board):
             return
