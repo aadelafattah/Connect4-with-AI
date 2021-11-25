@@ -1,6 +1,6 @@
 import pygame
 import sys
-from algorithm import decide, add_to_board, is_full, get_score_with_remove, Tree
+from algorithm import decide, add_to_board, is_full, get_score_with_remove, Tree, print_tree
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -184,6 +184,9 @@ def game_loop(method):
             player_turn = True
             if algorithm_move(method):
                 print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
+            if not (current_tree is None):
+                if print_tree(current_tree):
+                    print("TREE VIEWING EXPERIENCE IS DONE!!")
 
         # handling events
         for event in pygame.event.get():
@@ -204,6 +207,7 @@ def game_loop(method):
 
         # update window
         pygame.display.update()
+
 
         if is_full(board):
             return
