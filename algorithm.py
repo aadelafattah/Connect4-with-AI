@@ -4,8 +4,45 @@ class Tree:
         self.board = board
         self.children = []
 
-    # def add_child(self, child):
-    #     self.children.append(child)
+
+def print_tree(tree):
+    if tree.board is None:
+        print("NO TREE FOUND!!")
+    else:
+        print_board(tree.board)
+
+    command = input("For next child enter child and position (c,p), or sibling (s,p), or quit(q): ").split(",")
+    if command[0].strip().lower().__eq__("q"):
+        return True
+    if not (len(command) == 2):
+        print("WRONG INPUT!!")
+    else:
+        position = 0
+        try:
+            position = int(command[1].strip()) - 1
+        except ValueError:
+            print("WRONG POSITION")
+        command = command[0].strip().lower()
+        if command.__eq__("c"):
+            if (len(tree.children) < 1) or (tree.children is None):
+                print("NO TREE FOUND!!")
+            else:
+                if position < len(tree.children):
+                    return print_tree(tree.children[position])
+                else:
+                    print("WRONG POSITION!!")
+        elif command.__eq__("s"):
+            if tree.parent is None:
+                print("THIS IS THE ROOT TREE!!")
+            else:
+                if position < len(tree.parent.children):
+                    return print_tree(tree.parent.children[position])
+                else:
+                    print("WRONG POSITION!!")
+        else:
+            print("WRONG INPUT!!")
+
+    return print_tree(tree)
 
 
 def print_board(board):
