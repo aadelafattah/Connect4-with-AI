@@ -1,7 +1,6 @@
 import pygame
 import sys
-
-from algorithm import decide, add_to_board, is_full, get_score_with_remove
+from algorithm import decide, add_to_board, is_full, get_score_with_remove, Tree
 
 NUMBER_OF_MAKES = 4
 ROW_COUNT = 6
@@ -28,9 +27,13 @@ GREEN = (0, 225, 0)
 BRIGHT_GREEN = (100, 225, 100)
 LEN_PIC_PIX = 95
 
+
+current_tree = None
 recorded_score = 0
-row_difference = (PIXEL_UNIT * ROW_COUNT - LEN_PIC_PIX * ROW_COUNT) / (2 * ROW_COUNT)
-column_difference = (PIXEL_UNIT * COLUMN_COUNT - LEN_PIC_PIX * COLUMN_COUNT) / (2 * COLUMN_COUNT)
+row_difference = (PIXEL_UNIT * ROW_COUNT - LEN_PIC_PIX *
+                  ROW_COUNT) / (2 * ROW_COUNT)
+column_difference = (PIXEL_UNIT * COLUMN_COUNT -
+                     LEN_PIC_PIX * COLUMN_COUNT) / (2 * COLUMN_COUNT)
 
 points = {  # Number of pieces of same player in a sequence --> its score
     0: 0,
@@ -46,7 +49,8 @@ board = [[0 for column in range(COLUMN_COUNT)] for row in range(ROW_COUNT)]
 pygame.init()
 
 # initializing the window
-window = pygame.display.set_mode((COLUMN_COUNT * PIXEL_UNIT, ROW_COUNT * PIXEL_UNIT))
+window = pygame.display.set_mode(
+    (COLUMN_COUNT * PIXEL_UNIT, ROW_COUNT * PIXEL_UNIT))
 
 # Title and Icon
 pygame.display.set_caption("Make Connect 4")
@@ -61,7 +65,8 @@ def draw_board(grid):
     # putting the images
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT):
-            coordinates = (column_difference + PIXEL_UNIT * c, row_difference + PIXEL_UNIT * r)
+            coordinates = (column_difference + PIXEL_UNIT *
+                           c, row_difference + PIXEL_UNIT * r)
             if (grid[r][c] == PLAYER_ONE_PIECE) or (grid[r][c] == PLAYER_ONE_REPLACEMENT):
                 window.blit(red_ball, coordinates)
             elif (grid[r][c] == PLAYER_TWO_PIECE) or (grid[r][c] == PLAYER_TWO_REPLACEMENT):
@@ -95,6 +100,7 @@ def player_move(column):
 def algorithm_move(with_pruning):
     global board
     global AI_POINTS
+    global current_tree
     pieces = {
         "player1": PLAYER_ONE_PIECE,
         "player2": PLAYER_TWO_PIECE,
@@ -103,7 +109,9 @@ def algorithm_move(with_pruning):
     }
     # (new_board, algorithm_score) = min_max(board, with_pruning, DEPTH, True, float('-inf'), float('inf'), ROW_COUNT,
     #                                        COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
-    (new_board, algorithm_score) = decide(board, with_pruning, DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    (new_board, algorithm_score, tree) = decide(board, with_pruning,
+                                                DEPTH, ROW_COUNT, COLUMN_COUNT, NUMBER_OF_MAKES, pieces)
+    current_tree = tree
     board = new_board
     move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
                                         NUMBER_OF_MAKES)
@@ -145,7 +153,8 @@ def game_intro():
                 sys.exit()
 
         window.fill(WHITE)
-        text_show("Connect 4", 100, window.get_width() / 2, window.get_height() / 2)
+        text_show("Connect 4", 100, window.get_width() /
+                  2, window.get_height() / 2)
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
 
@@ -187,7 +196,8 @@ def game_loop(method):
                 if player_turn and board[0][column] == 0:
                     player_turn = False
                     if player_move(column):
-                        print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
+                        print(
+                            f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
 
         # draw the board
         draw_board(board)
@@ -204,7 +214,8 @@ def game_end():
     pygame.draw.rect(window, WHITE,
                      (window.get_width() / 5, window.get_height() / 5, window.get_width() / 5 * 3,
                       window.get_height() / 5 * 3))
-    text_show(f"AI:{AI_POINTS}, Player:{PLAYER_POINTS}", 50, window.get_width() / 2, window.get_height() / 3)
+    text_show(f"AI:{AI_POINTS}, Player:{PLAYER_POINTS}", 50,
+              window.get_width() / 2, window.get_height() / 3)
     while end:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -219,8 +230,10 @@ def game_end():
         if button(click, mouse, window, window.get_width() / 7 * 4, window.get_height() / 6 * 3, 100, 100, RED,
                   BRIGHT_RED):
             return True
-        text_show("Again", 25, window.get_width() / 7 * 2 + (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
-        text_show("Quit", 25, window.get_width() / 7 * 4 + (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
+        text_show("Again", 25, window.get_width() / 7 * 2 +
+                  (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
+        text_show("Quit", 25, window.get_width() / 7 * 4 +
+                  (100 / 2), window.get_height() / 6 * 3 + (100 / 2))
         pygame.display.flip()
         pygame.display.update()
 

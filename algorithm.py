@@ -1,3 +1,13 @@
+class Tree:
+    def __init__(self, board, parent):
+        self.parent = parent
+        self.board = board
+        self.children = []
+
+    # def add_child(self, child):
+    #     self.children.append(child)
+
+
 def print_board(board):
     print("1 2 3 4 5 6 7")
     print("_____________")
@@ -127,7 +137,7 @@ def get_score_with_remove(board, player_piece, replacement_piece, row_count, col
                 if board[row + i][col] == player_piece:
                     confirmed_assignment += 1
                 elif board[row + i][col] == replacement_piece:
-                    replacement_piece_assignment += 1 # there was confirmed_assignment instead of replacement_piece_assignment
+                    replacement_piece_assignment += 1
             # if true then we have number_of_makes (4) in a column or bigger, then we  replace them with
             # replacement_piece
             if (confirmed_assignment + replacement_piece_assignment >= number_of_makes) and (
@@ -245,48 +255,55 @@ def get_utility(board, player_piece, replacement_piece, row_count, column_count,
     return score
 
 
-def minimize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces):
+def minimize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces, tree):
     # player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
-                                  number_of_makes) - get_utility(board, pieces.get("player1"),
-                                                                 pieces.get("replacement1"), row_count, column_count,
-                                                                 number_of_makes)
+        utility = get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
+                              number_of_makes) - get_utility(board, pieces.get("player1"),
+                                                             pieces.get("replacement1"), row_count, column_count,
+                                                             number_of_makes)
+        return board, utility, tree
 
     (min_child, min_utility) = (None, float('inf'))
 
     for child in get_children(board, pieces.get("player1"), row_count, column_count):
-        (new_child, utility) = maximize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
-                                        number_of_makes, pieces)
+        temp_tree = Tree(child, tree)
+        (new_child, utility, child_tree) = maximize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
+                                                    number_of_makes, pieces, temp_tree)
 
         if utility < min_utility:
             (min_child, min_utility) = (child, utility)
 
+        tree.children.append(child_tree)
         if pruning:
             if min_utility <= alpha:
                 break
             if min_utility < beta:
                 beta = min_utility
 
-    return min_child, min_utility
+    return min_child, min_utility, tree
 
 
-def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces):
+def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number_of_makes, pieces, tree):
     # player_piece = 2 if the_maximising_player else 1
     if (depth == 0) or is_full(board):
-        return board, get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
-                                  number_of_makes) - get_utility(board, pieces.get("player1"),
-                                                                 pieces.get("replacement1"), row_count,
-                                                                 column_count, number_of_makes)
+        utility = get_utility(board, pieces.get("player2"), pieces.get("replacement2"), row_count, column_count,
+                              number_of_makes) - get_utility(board, pieces.get("player1"),
+                                                             pieces.get("replacement1"), row_count,
+                                                             column_count, number_of_makes)
+        return board, utility, tree
 
     (max_child, max_utility) = (None, float('-inf'))
 
     for child in get_children(board, pieces.get("player2"), row_count, column_count):
-        new_child, utility = minimize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
-                                      number_of_makes, pieces)
+        temp_tree = Tree(child, tree)
+        new_child, utility, child_tree = minimize(child, pruning, depth - 1, alpha, beta, row_count, column_count,
+                                                  number_of_makes, pieces, temp_tree)
 
         if utility > max_utility:
             (max_child, max_utility) = (child, utility)
+
+        tree.children.append(child_tree)
 
         if pruning:
             if max_utility >= beta:
@@ -294,14 +311,15 @@ def maximize(board, pruning, depth, alpha, beta, row_count, column_count, number
             if max_utility > alpha:
                 alpha = max_utility
 
-    return max_child, max_utility
+    return max_child, max_utility, tree
 
 
 def decide(board, pruning, depth, row_count, column_count, number_of_makes, pieces):
-    (child, max_utility) = maximize(board, pruning, depth, float('-inf'), float('inf'), row_count, column_count,
-                                    number_of_makes, pieces)
+    temp_tree = Tree(board, None)
+    (child, max_utility, tree) = maximize(board, pruning, depth, float('-inf'), float('inf'), row_count, column_count,
+                                          number_of_makes, pieces, temp_tree)
 
-    return child, max_utility
+    return child, max_utility, tree
 
 
 def min_max(board, pruning, depth, the_maximising_player, alpha, beta, row_count, column_count, number_of_makes,
