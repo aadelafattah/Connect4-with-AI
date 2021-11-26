@@ -5,28 +5,28 @@ class Tree:
         self.children = []
 
 
-def bfs_print(tree, depth):
+def bfs_print(tree):
     frontier = [tree]
     level = [0]
-    branch = [0]
+    node = 0
     while len(frontier) != 0:
         current_tree = frontier.pop(0)
         current_level = level.pop(0)
-        current_branch = branch.pop(0)
-        print(f"Level & branch = {current_level}, {current_branch}", end=": ")
+        node = node + 1
+        print(f"Level & node = {current_level}, {node}", end=": ")
         print(current_tree.board)
         for child in current_tree.children:
             frontier.append(child)
-            current_branch = current_branch + 1
-            branch.append(current_branch)
             level.append(current_level + 1)
 
-def print_tree(tree, depth):
+    print("--------------------------")
+
+def print_tree(tree):
     if tree.board is None:
         print("NO TREE FOUND!!")
     else:
         # print_board(tree.board)
-        bfs_print(tree, depth)
+        bfs_print(tree)
 
     # command = input("For next child enter child and position (c,p), or sibling (s,p), or quit(q): ").split(",")
     # if command[0].strip().lower().__eq__("q"):

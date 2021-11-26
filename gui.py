@@ -113,7 +113,7 @@ def algorithm_move(with_pruning):
     board = new_board
     move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
                                         NUMBER_OF_MAKES)
-    print_tree(tree, DEPTH)
+    print_tree(tree)
     if move_points > 0:
         AI_POINTS += move_points
         return True
@@ -214,8 +214,7 @@ def game_loop(method):
         # Algorithm Move
         if not player_turn:
             player_turn = True
-            if algorithm_move(method):
-                print(f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
+            algorithm_move(method)
 
         # handling events
         for event in pygame.event.get():
@@ -233,10 +232,7 @@ def game_loop(method):
                 column = x // 100
                 if player_turn and board[0][column] == 0:
                     player_turn = False
-                    if player_move(column):
-                        print(
-                            f"score : player / AI = ({PLAYER_POINTS},{AI_POINTS})")
-
+                    player_move(column)
         # draw the board
         draw_board(board)
 
