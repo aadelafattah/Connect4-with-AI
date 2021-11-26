@@ -10,8 +10,7 @@ PLAYER_TWO_PIECE = 2
 PLAYER_ONE_REPLACEMENT = 3
 PLAYER_TWO_REPLACEMENT = 4
 
-SCORE_FOR_WIN = 9550
-DEPTH = 6
+DEPTH = 0
 PLAYER_POINTS = 0
 AI_POINTS = 0
 
@@ -143,26 +142,59 @@ def text_show(message, size, x, y):
 
 
 def game_intro():
+    global DEPTH
     intro = True
+    temp = ''
 
     while intro:
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.unicode == '0':
+                    temp = temp + '0'
+                if event.unicode == '1':
+                    temp = temp + '1'
+                if event.unicode == '2':
+                    temp = temp + '2'
+                if event.unicode == '3':
+                    temp = temp + '3'
+                if event.unicode == '4':
+                    temp = temp + '4'
+                if event.unicode == '5':
+                    temp = temp + '5'
+                if event.unicode == '6':
+                    temp = temp + '6'
+                if event.unicode == '7':
+                    temp = temp + '7'
+                if event.unicode == '8':
+                    temp = temp + '8'
+                if event.unicode == '9':
+                    temp = temp + '9'
+                elif event.unicode == "d" or event.unicode == "D":
+                    temp = temp[0:-1]
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
         window.fill(WHITE)
+        if len(temp) == 0:
+            DEPTH = 0
+        else:
+            DEPTH = int(temp)
+
+        text_show(f"K = {DEPTH}", 25, window.get_width() /
+                  2, window.get_height() / 4)
         text_show("Connect 4", 100, window.get_width() /
                   2, window.get_height() / 2)
+        text_show(f"Use 'D' to delete ", 15, window.get_width() /
+                  2, window.get_height() - 30)
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-
-        if button(click, mouse, window, window.get_width() / 4 - 60, window.get_height() / 4 * 3 + 20, 220, 60, GREEN,
-                  BRIGHT_GREEN):
-            return True
-        if button(click, mouse, window, window.get_width() / 3 * 2 - 60, window.get_height() / 4 * 3 + 20, 220, 60, RED,
-                  BRIGHT_RED):
-            return False
+        if DEPTH != 0:
+            if button(click, mouse, window, window.get_width() / 4 - 60, window.get_height() / 4 * 3 + 20, 220, 60, GREEN,
+                      BRIGHT_GREEN):
+                return True
+            if button(click, mouse, window, window.get_width() / 3 * 2 - 60, window.get_height() / 4 * 3 + 20, 220, 60, RED,
+                      BRIGHT_RED):
+                return False
 
         text_show("with Alpha & Beta", 20, (window.get_width() / 4) + (100 / 2),
                   window.get_height() / 4 * 3 + (100 / 2))
