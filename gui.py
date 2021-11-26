@@ -1,3 +1,5 @@
+import timeit
+
 import pygame
 import sys
 from algorithm import decide, add_to_board, is_full, get_score_with_remove, print_tree
@@ -214,7 +216,10 @@ def game_loop(method):
         # Algorithm Move
         if not player_turn:
             player_turn = True
+            start = timeit.default_timer()
             algorithm_move(method)
+            stop = timeit.default_timer()
+            print('Time: ', stop - start)
 
         # handling events
         for event in pygame.event.get():
