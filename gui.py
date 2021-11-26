@@ -157,10 +157,10 @@ def game_intro():
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
 
-        if button(click, mouse, window, window.get_width() / 4, window.get_height() / 4 * 3, 100, 100, GREEN,
+        if button(click, mouse, window, window.get_width() / 4 - 60, window.get_height() / 4 * 3 + 20, 220, 60, GREEN,
                   BRIGHT_GREEN):
             return True
-        if button(click, mouse, window, window.get_width() / 3 * 2, window.get_height() / 4 * 3, 100, 100, RED,
+        if button(click, mouse, window, window.get_width() / 3 * 2 - 60, window.get_height() / 4 * 3 + 20, 220, 60, RED,
                   BRIGHT_RED):
             return False
 
