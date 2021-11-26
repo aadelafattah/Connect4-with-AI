@@ -113,6 +113,7 @@ def algorithm_move(with_pruning):
     board = new_board
     move_points = get_score_with_remove(board, PLAYER_TWO_PIECE, PLAYER_TWO_REPLACEMENT, ROW_COUNT, COLUMN_COUNT,
                                         NUMBER_OF_MAKES)
+    print_tree(tree, DEPTH)
     if move_points > 0:
         AI_POINTS += move_points
         return True

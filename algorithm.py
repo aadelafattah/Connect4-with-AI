@@ -5,44 +5,61 @@ class Tree:
         self.children = []
 
 
-def print_tree(tree):
+def bfs_print(tree, depth):
+    frontier = [tree]
+    level = [0]
+    branch = [0]
+    while len(frontier) != 0:
+        current_tree = frontier.pop(0)
+        current_level = level.pop(0)
+        current_branch = branch.pop(0)
+        print(f"Level & branch = {current_level}, {current_branch}", end=": ")
+        print(current_tree.board)
+        for child in current_tree.children:
+            frontier.append(child)
+            current_branch = current_branch + 1
+            branch.append(current_branch)
+            level.append(current_level + 1)
+
+def print_tree(tree, depth):
     if tree.board is None:
         print("NO TREE FOUND!!")
     else:
-        print_board(tree.board)
+        # print_board(tree.board)
+        bfs_print(tree, depth)
 
-    command = input("For next child enter child and position (c,p), or sibling (s,p), or quit(q): ").split(",")
-    if command[0].strip().lower().__eq__("q"):
-        return True
-    if not (len(command) == 2):
-        print("WRONG INPUT!!")
-    else:
-        position = 0
-        try:
-            position = int(command[1].strip()) - 1
-        except ValueError:
-            print("WRONG POSITION")
-        command = command[0].strip().lower()
-        if command.__eq__("c"):
-            if (len(tree.children) < 1) or (tree.children is None):
-                print("NO TREE FOUND!!")
-            else:
-                if position < len(tree.children):
-                    return print_tree(tree.children[position])
-                else:
-                    print("WRONG POSITION!!")
-        elif command.__eq__("s"):
-            if tree.parent is None:
-                print("THIS IS THE ROOT TREE!!")
-            else:
-                if position < len(tree.parent.children):
-                    return print_tree(tree.parent.children[position])
-                else:
-                    print("WRONG POSITION!!")
-        else:
-            print("WRONG INPUT!!")
+    # command = input("For next child enter child and position (c,p), or sibling (s,p), or quit(q): ").split(",")
+    # if command[0].strip().lower().__eq__("q"):
+    #     return True
+    # if not (len(command) == 2):
+    #     print("WRONG INPUT!!")
+    # else:
+    #     position = 0
+    #     try:
+    #         position = int(command[1].strip()) - 1
+    #     except ValueError:
+    #         print("WRONG POSITION")
+    #     command = command[0].strip().lower()
+    #     if command.__eq__("c"):
+    #         if (len(tree.children) < 1) or (tree.children is None):
+    #             print("NO TREE FOUND!!")
+    #         else:
+    #             if position < len(tree.children):
+    #                 return print_tree(tree.children[position])
+    #             else:
+    #                 print("WRONG POSITION!!")
+    #     elif command.__eq__("s"):
+    #         if tree.parent is None:
+    #             print("THIS IS THE ROOT TREE!!")
+    #         else:
+    #             if position < len(tree.parent.children):
+    #                 return print_tree(tree.parent.children[position])
+    #             else:
+    #                 print("WRONG POSITION!!")
+    #     else:
+    #         print("WRONG INPUT!!")
 
-    return print_tree(tree)
+    return
 
 
 def print_board(board):
